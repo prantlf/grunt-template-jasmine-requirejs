@@ -54,6 +54,11 @@ Type: `String`
 
 If you wish to override the template version of the SpecRunner.html that is built out (for customizing), then you can provide the path for this. If you wish to alter the template, you can create a copy from [here](https://github.com/cloudchen/grunt-template-jasmine-requirejs/blob/master/src/templates/jasmine-requirejs.html). If `specRunnerTemplate` is provided and the file exists, it uses this file, otherwise it falls back to the default built in template.
 
+### templateOptions.boot
+Type: `String`
+
+If you wish to override the default `requirejs-boot.js` script with the RequireJS support that is built out (for customizing), then you can provide the path for this. If you wish to alter the template, you can create a copy from [here](https://github.com/prantlf/grunt-template-jasmine-requirejs/blob/requirejs-boot/src/requirejs-boot.js). If the `boot` option is provided and the file exists, it will use this file, otherwise it will fall back to the default built-in script.
+
 ## Sample usage
 
 ```js
