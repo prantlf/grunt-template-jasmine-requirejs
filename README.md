@@ -49,6 +49,10 @@ This object is `JSON.stringify()`-ed ( **support serialize Function object** ) i
 
 If `requireConfigFile` is specified then it will be loaded first and the settings specified by this directive will be deep-merged onto those.
 
+### templateOptions.boot
+Type: `String`
+
+If you wish to override the default `requirejs-boot.js` script with the RequireJS support that is built out (for customizing), then you can provide the path for this. If you wish to alter the template, you can create a copy from [here](https://github.com/prantlf/grunt-template-jasmine-requirejs/blob/requirejs-boot/src/requirejs-boot.js). If the `boot` option is provided and the file exists, it will use this file, otherwise it will fall back to the default built-in script.
 
 ## Sample usage
 

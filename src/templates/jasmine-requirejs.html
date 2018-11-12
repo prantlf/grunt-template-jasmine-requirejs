@@ -3,26 +3,30 @@
 <head>
   <meta charset="utf-8">
   <title>Jasmine Spec Runner</title>
-
+  <link rel="shortcut icon" type="image/png" href="<%= favicon %>">
   <% css.forEach(function(style){ %>
   <link rel="stylesheet" type="text/css" href="<%= style %>">
   <% }) %>
-
+</head>
+<body>
+  <% [].concat(scripts.vendor).forEach(function(script){ %>
+  <script src="<%= script %>"></script>
+  <% }) %>
   <% with (scripts) { %>
-  <% [].concat(vendor).forEach(function(script){ %>
+  <% [].concat(polyfills, jasmine).forEach(function(script){ %>
   <script src="<%= script %>"></script>
   <% }) %>
   <% }; %>
-
   <script src="<%= temp ? temp + "/" : temp %>require.js"></script>
-
+  <script src="<%= temp ? temp + "/" : temp %>boot-requirejs.js"></script>
   <% with (scripts) { %>
-  <% [].concat(jasmine, boot, helpers).forEach(function(script){ %>
+  <% [].concat(helpers, /* src, specs, */ reporters).forEach(function(script){ %>
   <script src="<%= script %>"></script>
   <% }) %>
   <% }; %>
 
   <script>
+  (function () {
     require.onError = function(error) {
       var message = error.requireType + ': ';
       if (error.requireType === 'scripterror' || error.requireType === 'notloaded' && error.requireModules) {
@@ -30,12 +34,10 @@
       } else {
         message += error.message;
       }
-
+      message += '\nOriginal stack trace:\n' + error.stack;
       throw Error(message);
     };
-  </script>
 
-  <script>
     <% if (options.mainRequireConfig) { %>
       require.config(<%= serializeRequireConfig(options.mainRequireConfig) %>);
     <% } %>
@@ -68,35 +70,20 @@
     %>
       require.config(<%= serializeRequireConfig(options.requireConfig) %>);
     <% } %>
-  </script>
-
-  <script>
-    // Delay onLoad function until we are ready
-    var startTests = window.onload;
-    window.onload = null;
 
     function launchTest() {
-    require([
-      <% scripts.src.forEach(function(script, i){ %>
-        <% script = script.replace(/\\/g, '/') // replace all backward slashes to forward slash %>
-        '<%= script %>' <%= i < scripts.src.length-1 ? ',' : '' %>
-      <% }) %>
-    ],
-    function(){
-      require(['<%= [].concat(scripts.specs,scripts.reporters).join("','") %>'], function(){
-        startTests();
-      });
+      require([
+      <% with (scripts) { %>
+        <% specs.forEach(function(spec, index){ %>'<%= spec %>'<%= index < specs.length - 1 ? ',' : '' %>
+        <% }); %>
+      <% }; %>
+      ], window.bootJasmine)
     }
-    )
-  }
-  </script>
 
   <% if (!hasCallback) { %>
-  <script>
   launchTest();
-  </script>
   <% } %>
-</head>
-<body>
+  }());
+  </script>
 </body>
 </html>

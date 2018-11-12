@@ -2,6 +2,7 @@
 
 var _ = require('lodash');
 var template = __dirname + '/templates/jasmine-requirejs.html',
+    defaulRequireJsBoot = __dirname + '/boot-requirejs.js',
     requirejs  = {
       '2.0.0' : __dirname + '/../vendor/require-2.0.0.js',
       '2.0.1' : __dirname + '/../vendor/require-2.0.1.js',
@@ -62,6 +63,14 @@ function moveRequireJs(grunt, tempDir, versionOrPath) {
       }
   }
   grunt.file.copy(pathToRequireJS, path.join(tempDir, 'require.js'));
+}
+
+function moveRequireJsBoot(grunt, tempDir, requirejsBoot) {
+  var pathToRequireJsBoot = resolvePath(requirejsBoot || defaulRequireJsBoot);
+  if (!grunt.file.exists(pathToRequireJsBoot)) {
+    throw new Error('local file path of boot [' + pathToRequireJsBoot + '] was not found');
+  }
+  grunt.file.copy(pathToRequireJsBoot, path.join(tempDir, 'boot-requirejs.js'));
 }
 
 exports.process = function(grunt, task, context) {
@@ -135,6 +144,7 @@ exports.process = function(grunt, task, context) {
   }
 
   moveRequireJs(grunt, context.temp, version);
+  moveRequireJsBoot(grunt, context.temp, context.options.boot);
 
   context.serializeRequireConfig = function(requireConfig) {
     var funcCounter = 0;
