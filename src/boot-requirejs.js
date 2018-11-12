@@ -1,4 +1,4 @@
-/* global jasmine, jasmineRequire */
+/* global document, jasmine, jasmineRequire, window */
 
 /*
 Copyright (c) 2008-2018 Pivotal Labs
@@ -32,35 +32,45 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  [jasmine-gem]: http://github.com/pivotal/jasmine-gem
  */
 
-(function () {
+(function() {
+  /**
+   * Helper function.
+   */
+  function extend(destination, source) {
+    for (var property in source) {
+      destination[property] = source[property];
+    }
+    return destination;
+  }
+
   /**
    * ## Require &amp; Instantiate
    *
    * Require Jasmine's core files. Specifically, this requires and attaches all of Jasmine's code to the `jasmine` reference.
    */
-  window.jasmine = jasmineRequire.core(jasmineRequire)
+  window.jasmine = jasmineRequire.core(jasmineRequire);
 
   /**
    * Since this is being run in a browser and the results should populate to an HTML page, require the HTML-specific Jasmine code, injecting the same reference.
    */
-  jasmineRequire.html(jasmine)
+  jasmineRequire.html(jasmine);
 
   /**
    * Create the Jasmine environment. This is used to run all specs in a project.
    */
-  var env = jasmine.getEnv()
+  var env = jasmine.getEnv();
 
   /**
    * ## The Global Interface
    *
    * Build up the functions that will be exposed as the Jasmine public interface. A project can customize, rename or alias any of these functions as desired, provided the implementation remains unchanged.
    */
-  var jasmineInterface = jasmineRequire.interface(jasmine, env)
+  var jasmineInterface = jasmineRequire.interface(jasmine, env);
 
   /**
    * Add all of the Jasmine global/public interface to the global scope, so a project can use the public interface directly. For example, calling `describe` in specs instead of `jasmine.getEnv().describe`.
    */
-  extend(window, jasmineInterface)
+  extend(window, jasmineInterface);
 
   /**
    * ## Runner Parameters
@@ -69,26 +79,26 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    */
 
   var queryString = new jasmine.QueryString({
-    getWindowLocation: function () { return window.location }
-  })
+    getWindowLocation: function() { return window.location; }
+  });
 
-  var filterSpecs = !!queryString.getParam('spec')
+  var filterSpecs = !!queryString.getParam("spec");
 
   var config = {
-    failFast: queryString.getParam('failFast'),
-    oneFailurePerSpec: queryString.getParam('oneFailurePerSpec'),
-    hideDisabled: queryString.getParam('hideDisabled')
+    failFast: queryString.getParam("failFast"),
+    oneFailurePerSpec: queryString.getParam("oneFailurePerSpec"),
+    hideDisabled: queryString.getParam("hideDisabled")
+  };
+
+  var random = queryString.getParam("random");
+
+  if (random !== undefined && random !== "") {
+    config.random = random;
   }
 
-  var random = queryString.getParam('random')
-
-  if (random !== undefined && random !== '') {
-    config.random = random
-  }
-
-  var seed = queryString.getParam('seed')
+  var seed = queryString.getParam("seed");
   if (seed) {
-    config.seed = seed
+    config.seed = seed;
   }
 
   /**
@@ -97,42 +107,41 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    */
   var htmlReporter = new jasmine.HtmlReporter({
     env: env,
-    navigateWithNewParam: function (key, value) { return queryString.navigateWithNewParam(key, value) },
-    addToExistingQueryString: function (key, value) { return queryString.fullStringWithNewParam(key, value) },
-    getContainer: function () { return document.body },
-    createElement: function () { return document.createElement.apply(document, arguments) },
-    createTextNode: function () { return document.createTextNode.apply(document, arguments) },
+    navigateWithNewParam: function(key, value) { return queryString.navigateWithNewParam(key, value); },
+    addToExistingQueryString: function(key, value) { return queryString.fullStringWithNewParam(key, value); },
+    getContainer: function() { return document.body; },
+    createElement: function() { return document.createElement.apply(document, arguments); },
+    createTextNode: function() { return document.createTextNode.apply(document, arguments); },
     timer: new jasmine.Timer(),
     filterSpecs: filterSpecs
-  })
+  });
 
   /**
    * The `jsApiReporter` also receives spec results, and is used by any environment that needs to extract the results  from JavaScript.
    */
-  env.addReporter(jasmineInterface.jsApiReporter)
-  env.addReporter(htmlReporter)
+  env.addReporter(jasmineInterface.jsApiReporter);
+  env.addReporter(htmlReporter);
 
   /**
    * Filter which specs will be run by matching the start of the full name against the `spec` query param.
    */
   var specFilter = new jasmine.HtmlSpecFilter({
-    filterString: function () { return queryString.getParam('spec') }
-  })
+    filterString: function() { return queryString.getParam("spec"); }
+  });
 
-  config.specFilter = function (spec) {
-    return specFilter.matches(spec.getFullName())
-  }
+  config.specFilter = function(spec) {
+    return specFilter.matches(spec.getFullName());
+  };
 
-  env.configure(config)
+  env.configure(config);
 
   /**
    * Setting up timing functions to be able to be overridden. Certain browsers (Safari, IE 8, phantomjs) require this hack.
    */
-  /* eslint-disable no-self-assign */
-  window.setTimeout = window.setTimeout
-  window.setInterval = window.setInterval
-  window.clearTimeout = window.clearTimeout
-  window.clearInterval = window.clearInterval
+  window.setTimeout = window.setTimeout;
+  window.setInterval = window.setInterval;
+  window.clearTimeout = window.clearTimeout;
+  window.clearInterval = window.clearInterval;
 
   /**
    * ## Execution
@@ -151,15 +160,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
   };
   */
   window.bootJasmine = function () {
-    htmlReporter.initialize()
-    env.execute()
-  }
-
-  /**
-   * Helper function for readability above.
-   */
-  function extend (destination, source) {
-    for (var property in source) destination[property] = source[property]
-    return destination
-  }
-}())
+    htmlReporter.initialize();
+    env.execute();
+  };
+}());
